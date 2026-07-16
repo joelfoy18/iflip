@@ -1,14 +1,393 @@
-iFlip GC
-iPhone arbitrage · Australia-wide
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="iFlip GC">
+<meta name="theme-color" content="#0f1420">
+<title>iFlip — Gold Coast iPhone Arbitrage</title>
+<style>
+:root{
+  --bg:#0f1420; --card:#1a2130; --card2:#222b3e; --line:#2c3650;
+  --txt:#e8ecf5; --dim:#8b95ab; --acc:#4f8ef7; --good:#2ecc71; --bad:#e74c3c; --warn:#f5a623;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:10;background:rgba(15,20,32,.92);backdrop-filter:blur(10px);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;font-weight:700}
+header .sub{font-size:11px;color:var(--dim)}
+.spacer{flex:1}
+button{font:inherit;border:0;border-radius:10px;cursor:pointer}
+.btn{background:var(--acc);color:#fff;padding:9px 16px;font-weight:600}
+.btn:disabled{opacity:.5}
+.btn.ghost{background:var(--card2);color:var(--txt)}
+.btn.sm{padding:6px 10px;font-size:13px}
+main{padding:14px 14px 0;max-width:760px;margin:0 auto}
+.banner{border-radius:12px;padding:12px 14px;margin-bottom:12px;font-weight:600;display:none}
+.banner.show{display:block}
+.banner.good{background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.5);color:var(--good)}
+.banner.info{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.4);color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.deal{display:flex;flex-direction:column;gap:8px}
+.deal .row1{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.deal .model{font-weight:700;font-size:15px}
+.profit{font-weight:800;font-size:17px}
+.profit.pos{color:var(--good)} .profit.neg{color:var(--bad)}
+.deal .title{color:var(--dim);font-size:13px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.deal .path{font-size:13px}
+.deal .path b{color:var(--txt)}
+.deal .links{display:flex;gap:8px;flex-wrap:wrap}
+.deal .links a{background:var(--card2);color:var(--acc);text-decoration:none;padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600}
+.tag{font-size:11px;padding:2px 7px;border-radius:20px;background:var(--card2);color:var(--dim)}
+.tag.flag{color:var(--warn)}
+.muted{color:var(--dim);font-size:13px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:18px 0 8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,20,32,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;color:var(--dim);padding:10px 0 8px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button.on{color:var(--acc)}
+nav .ico{font-size:20px;line-height:1}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--dim);font-weight:600;font-size:11px}
+td input{width:64px;background:var(--card2);border:1px solid var(--line);border-radius:6px;color:var(--txt);padding:4px 6px;font:inherit;text-align:right}
+select,input[type=text],input[type=number]{background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:8px 10px;font:inherit}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border:0}
+.fblinks{display:flex;flex-wrap:wrap;gap:8px}
+.fblinks a{background:var(--card2);color:var(--txt);text-decoration:none;padding:8px 12px;border-radius:10px;font-size:13px}
+.fblinks a b{color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{background:var(--card2);border:1px solid var(--line);color:var(--dim);padding:6px 11px;border-radius:20px;font-size:13px}
+.chip.on{background:rgba(79,142,247,.18);border-color:var(--acc);color:var(--acc)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;color:var(--dim);padding:40px 20px}
+.empty .big{font-size:40px;margin-bottom:10px}
+.addform{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.addform .full{grid-column:1/-1}
+footer{max-width:760px;margin:20px auto 0;padding:0 14px;color:var(--dim);font-size:11px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>iFlip <span style="color:var(--acc)">GC</span></h1><div class="sub">iPhone arbitrage · Australia-wide</div></div>
+  <div class="spacer"></div>
+  <button class="btn" id="scanBtn" onclick="scanAll()">Scan</button>
+</header>
 
-Scan
+<main>
+  <div class="banner good" id="dealBanner"></div>
+  <div class="banner info" id="infoBanner"></div>
 
-Buyback seed prices are estimates (Jul 2026) — verify before buying. Not financial advice. Always check IMEI/iCloud lock before purchase.
-⚡
-Deals
-🛒
-Listings
-💰
-Buyback
-⚙️
-Settings
+  <!-- DEALS -->
+  <section id="tab-deals">
+    <div class="chips" id="modelChips"></div>
+    <div id="dealsList"></div>
+  </section>
+
+  <!-- LISTINGS -->
+  <section id="tab-listings" hidden>
+    <h2>Facebook Marketplace — quick searches</h2>
+    <p class="muted" style="margin-bottom:8px">FB blocks automated scanning. Tap to browse, then add promising ads below — they'll be priced against buyback instantly.</p>
+    <div class="fblinks" id="fbLinks"></div>
+    <h2>Cash Converters — quick searches</h2>
+    <p class="muted" style="margin-bottom:8px">Cashies' webshop can't be auto-scanned either (JS-rendered). Australia-wide delivery, 90-day warranty. Add finds below.</p>
+    <div class="fblinks" id="ccLinks"></div>
+    <h2>Add a listing manually (FB / Cashies / Gumtree / anywhere)</h2>
+    <div class="card addform">
+      <select id="mModel"></select>
+      <select id="mCap"></select>
+      <select id="mCond"><option value="excellent">Excellent</option><option value="good" selected>Good</option><option value="fair">Fair / worn</option></select>
+      <input type="number" id="mPrice" placeholder="Asking price $" inputmode="numeric">
+      <input type="text" id="mUrl" class="full" placeholder="Link to ad (optional)">
+      <button class="btn full" onclick="addManual()">Add & evaluate</button>
+    </div>
+    <h2>All scanned + manual listings</h2>
+    <div id="allList"></div>
+  </section>
+
+  <!-- BUYBACK -->
+  <section id="tab-buyback" hidden>
+    <p class="muted" style="margin:4px 0 10px">Prices are what each site pays for a <b>Good-condition, unlocked</b> phone. Seeded with estimates — <b>tap a site name</b> to open its quote page and correct the number (saved on your device). CeX can auto-refresh.</p>
+    <button class="btn ghost sm" onclick="refreshCex()" id="cexBtn">↻ Auto-refresh CeX prices</button>
+    <div style="overflow-x:auto;margin-top:10px"><table id="bbTable"></table></div>
+    <h2>Condition multipliers</h2>
+    <div class="card">
+      <div class="setrow"><span>Excellent (like new)</span><input type="number" step="0.05" id="mulE" style="width:70px"></div>
+      <div class="setrow"><span>Good (normal wear)</span><input type="number" step="0.05" id="mulG" style="width:70px"></div>
+      <div class="setrow"><span>Fair (worn / heavy use)</span><input type="number" step="0.05" id="mulF" style="width:70px"></div>
+      <p class="muted" style="padding-top:8px">Buyback offer = table price × multiplier for the listing's condition.</p>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" hidden>
+    <div class="card">
+      <div class="setrow"><span>Min profit to alert (A$)</span><input type="number" id="minProfit" style="width:80px"></div>
+      <div class="setrow"><span>Extra costs per flip (fuel, postage…) A$</span><input type="number" id="costs" style="width:80px"></div>
+      <div class="setrow"><span>eBay scope</span><span class="tag">Australia only · Buy It Now / Best Offer</span></div>
+      <div class="setrow" style="flex-direction:column;align-items:stretch;gap:6px"><span>eBay API worker URL <span class="muted">(recommended — see setup guide; blank = unreliable proxy mode)</span></span><input type="text" id="workerUrl" placeholder="https://your-worker.workers.dev"></div>
+      <div class="setrow"><span>FB Marketplace location <span class="muted">(from its URL, e.g. goldcoast, brisbane)</span></span><input type="text" id="fbloc" style="width:110px"></div>
+      <div class="setrow"><span>Browser notifications</span><button class="btn sm ghost" id="notifBtn" onclick="askNotif()">Enable</button></div>
+    </div>
+    <h2>Models to scan</h2>
+    <div class="chips" id="scanModels"></div>
+    <div class="card"><p class="muted">Data lives only on this device (localStorage). eBay scans cover all of Australia, Buy It Now / Best Offer listings only (no auctions), via free public CORS proxies — if a proxy is down, the app falls back to one-tap eBay links. Assumed condition for scanned eBay ads: Good (adjust per ad after checking photos).</p></div>
+    <button class="btn ghost" onclick="if(confirm('Reset all prices & listings?')){localStorage.clear();location.reload()}">Reset app data</button>
+  </section>
+</main>
+
+<footer>Buyback seed prices are estimates (Jul 2026) — verify before buying. Not financial advice. Always check IMEI/iCloud lock before purchase.</footer>
+
+<nav>
+  <button class="on" data-t="deals" onclick="tab('deals',this)"><span class="ico">⚡</span>Deals</button>
+  <button data-t="listings" onclick="tab('listings',this)"><span class="ico">🛒</span>Listings</button>
+  <button data-t="buyback" onclick="tab('buyback',this)"><span class="ico">💰</span>Buyback</button>
+  <button data-t="settings" onclick="tab('settings',this)"><span class="ico">⚙️</span>Settings</button>
+</nav>
+
+<script>
+/* ================= DATA ================= */
+const VENDORS=[
+ {id:"mm",  name:"MobileMonster", f:1.00, url:m=>"https://mobilemonster.com.au/sell-your-phone/apple/mobiles"},
+ {id:"cex", name:"CeX (cash)",    f:0.90, url:m=>"https://au.webuy.com/search?stext="+encodeURIComponent(m)},
+ {id:"oz",  name:"OzMobiles",     f:0.95, url:m=>"https://ozmobiles.com.au/pages/ozmobiles-sell-your-iphone"},
+ {id:"guru",name:"MobileGuru",    f:0.88, url:m=>"https://www.mobileguruaustralia.com.au/sell/"},
+ {id:"iic", name:"iPhonesIntoCash",f:0.97,url:m=>"https://iphonesintocash.com"},
+ {id:"bm",  name:"Back Market",   f:0.92, url:m=>"https://www.backmarket.com.au/en-au/buyback/smartphones/iphone"},
+];
+/* Base "Good condition, unlocked" estimates in AUD (editable in-app) */
+const BASE={
+ "iPhone 11":{ "64GB":150,"128GB":180},
+ "iPhone 11 Pro":{ "64GB":210,"256GB":250},
+ "iPhone 12":{ "64GB":220,"128GB":260},
+ "iPhone 12 Pro":{ "128GB":330,"256GB":370},
+ "iPhone 13":{ "128GB":380,"256GB":430},
+ "iPhone 13 Pro":{ "128GB":520,"256GB":570},
+ "iPhone 13 Pro Max":{ "128GB":590,"256GB":650},
+ "iPhone 14":{ "128GB":480,"256GB":530},
+ "iPhone 14 Pro":{ "128GB":660,"256GB":720},
+ "iPhone 14 Pro Max":{ "128GB":760,"256GB":830},
+ "iPhone 15":{ "128GB":620,"256GB":680},
+ "iPhone 15 Pro":{ "128GB":850,"256GB":920},
+ "iPhone 15 Pro Max":{ "256GB":1030,"512GB":1120},
+ "iPhone 16":{ "128GB":780,"256GB":850},
+ "iPhone 16 Pro":{ "128GB":1020,"256GB":1100},
+ "iPhone 16 Pro Max":{ "256GB":1250,"512GB":1360},
+};
+const MODELS=Object.keys(BASE);
+const PROXIES=[u=>"https://corsproxy.io/?url="+encodeURIComponent(u), u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u)];
+
+/* ================= STATE ================= */
+const S=JSON.parse(localStorage.getItem("iflip")||"{}");
+S.prices  ??= seedPrices();
+S.listings??= [];
+S.seen    ??= {};
+S.set     ??= {minProfit:50,costs:15,mulE:1.0,mulG:0.85,mulF:0.6,
+               scan:["iPhone 13","iPhone 14","iPhone 14 Pro","iPhone 15","iPhone 15 Pro"],filter:"all"};
+function seedPrices(){const p={};for(const m of MODELS)for(const c in BASE[m])for(const v of VENDORS)p[`${m}|${c}|${v.id}`]=Math.round(BASE[m][c]*v.f);return p}
+const save=()=>localStorage.setItem("iflip",JSON.stringify(S));
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const money=n=>"A$"+Math.round(n).toLocaleString();
+const mul=c=>({excellent:S.set.mulE,good:S.set.mulG,fair:S.set.mulF}[c]??S.set.mulG);
+function bestBuyback(model,cap,cond){
+  let best=null;
+  for(const v of VENDORS){const base=S.prices[`${model}|${cap}|${v.id}`];if(!base)continue;
+    const offer=base*mul(cond);
+    if(!best||offer>best.offer)best={vendor:v,offer};}
+  return best;
+}
+function evalListing(l){
+  const bb=bestBuyback(l.model,l.cap,l.cond);
+  if(!bb)return{...l,profit:-9999};
+  const profit=bb.offer-l.price-(+S.set.costs||0);
+  return{...l,vendor:bb.vendor.name,vendorUrl:bb.vendor.url(l.model+" "+l.cap),offer:bb.offer,profit};
+}
+/* Parse model + capacity out of an ad title */
+function inferModel(t){
+  t=t.toLowerCase();
+  let found=null;
+  for(const m of [...MODELS].sort((a,b)=>b.length-a.length)){
+    const k=m.toLowerCase().replace("iphone ","");
+    if(new RegExp("iphone\\s*"+k.replace(/ /g,"\\s*")+"(?!\\s*(pro|max|plus|mini))","i").test(t)){found=m;break}
+  }
+  if(!found)return null;
+  const cm=t.match(/(64|128|256|512)\s*gb|1\s*tb/);
+  const cap=cm?(cm[0].replace(/\s/g,"").toUpperCase()):null;
+  return {model:found,cap:cap&&BASE[found][cap]?cap:Object.keys(BASE[found])[0],capGuessed:!cm};
+}
+const RED=/parts|repair|crack|broken|faulty|smash|icloud|locked|damag|screen only|box only|case|read desc/i;
+
+/* ================= SCAN (eBay) ================= */
+async function fetchProxy(url){
+  for(const p of PROXIES){
+    try{const r=await fetch(p(url),{signal:AbortSignal.timeout(15000)});if(r.ok){const t=await r.text();if(t.length>1000)return t}}catch(e){}
+  }
+  return null;
+}
+function ebayUrl(model){
+  /* Australia only (LH_PrefLoc=1), Buy It Now / Best Offer only (LH_BIN=1 excludes pure auctions), used condition */
+  return "https://www.ebay.com.au/sch/i.html?_nkw="+encodeURIComponent(model)+
+    "&LH_PrefLoc=1&LH_BIN=1&_sop=15&LH_ItemCondition=3000";
+}
+function addScanned(title,url,price){
+  const inf=inferModel(title);if(!inf||!price)return 0;
+  url=url.split("?")[0];
+  if(S.listings.some(l=>l.url===url))return 0;
+  S.listings.push({id:Date.now()+Math.random(),src:"eBay",title,url,price,
+    model:inf.model,cap:inf.cap,capGuessed:inf.capGuessed,cond:"good",flag:RED.test(title),ts:Date.now()});
+  return 1;
+}
+/* Official eBay Browse API via the user's Cloudflare Worker (see setup guide) */
+async function scanApi(model){
+  const r=await fetch(S.set.workerUrl.replace(/\/$/,"")+"/?q="+encodeURIComponent(model),{signal:AbortSignal.timeout(15000)});
+  if(!r.ok)throw new Error("worker "+r.status);
+  const j=await r.json();
+  if(j.errors)throw new Error(j.errors[0]?.message||"eBay API error");
+  let n=0;
+  for(const it of (j.itemSummaries||[]))n+=addScanned(it.title||"",it.itemWebUrl||"",+(it.price?.value||0));
+  return n;
+}
+/* Legacy fallback: scrape via public proxies (usually 403-blocked by eBay) */
+async function scanProxy(model){
+  const html=await fetchProxy(ebayUrl(model));
+  if(!html)throw new Error("blocked");
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  let n=0;
+  for(const it of [...doc.querySelectorAll("li.s-item, .s-card")].slice(0,30)){
+    const a=it.querySelector("a[href*='itm/']");const priceEl=it.querySelector(".s-item__price, .s-card__price");
+    const title=(it.querySelector(".s-item__title, .s-card__title")?.textContent||"").trim();
+    if(!a||!priceEl||!title||/shop on ebay/i.test(title))continue;
+    const price=parseFloat((priceEl.textContent.match(/[\d,]+\.?\d*/)||[""])[0].replace(/,/g,""));
+    n+=addScanned(title,a.href,price);
+  }
+  return n;
+}
+async function scanAll(){
+  const btn=$("scanBtn");btn.disabled=true;btn.innerHTML='<span class="spin"></span>Scanning';
+  let added=0,failed=[],apiMode=!!(S.set.workerUrl&&S.set.workerUrl.trim()),lastErr="";
+  for(const model of S.set.scan){
+    try{added+=await(apiMode?scanApi(model):scanProxy(model))}
+    catch(e){failed.push(model);lastErr=String(e&&e.message||e)}
+  }
+  /* prune >7 days old scanned items */
+  S.listings=S.listings.filter(l=>l.src!=="eBay"||Date.now()-l.ts<7*864e5);
+  save();render();
+  btn.disabled=false;btn.textContent="Scan";
+  const deals=currentDeals().filter(d=>!S.seen[d.url]);
+  deals.forEach(d=>S.seen[d.url]=1);save();
+  if(deals.length){
+    banner("dealBanner",`⚡ ${deals.length} profit ${deals.length>1?"opportunities":"opportunity"} found — best: ${money(deals[0].profit)} on ${deals[0].model}`);
+    notify(`${deals.length} iPhone flip deal${deals.length>1?"s":""} on the Gold Coast`,`Best: ${deals[0].model} ${deals[0].cap} — buy ${money(deals[0].price)}, sell ${money(deals[0].offer)} → ${money(deals[0].profit)} profit`);
+  }else if(added||!failed.length){banner("infoBanner",`Scan done — ${added} new listings, no deals above ${money(S.set.minProfit)} yet.`)}
+  if(failed.length)banner("infoBanner",
+    apiMode?`eBay API request failed (${lastErr||"network blocked"}). If your worker URL shows JSON in a browser, this is almost always because the app is running inside a sandboxed preview that blocks outside requests — open the app from its hosted web address instead (Add to Home Screen / bookmark). Direct links meanwhile:`
+    :`eBay blocks free proxies (403 bot-detection) — this mode rarely works. Set up the free official eBay API (see setup guide) and paste your worker URL in Settings. Links meanwhile:`,
+    failed.map(m=>`<a target=_blank href="${ebayUrl(m)}">${m} ↗</a>`).join(" "));
+}
+
+/* ================= CeX live prices ================= */
+async function refreshCex(){
+  const btn=$("cexBtn");btn.disabled=true;btn.innerHTML='<span class="spin"></span>Fetching CeX…';let n=0;
+  for(const m of MODELS){
+    const txt=await fetchProxy("https://wss2.cex.au.webuy.io/v3/boxes?q="+encodeURIComponent(m)+"&firstRecord=1&count=50");
+    if(!txt)continue;
+    try{const boxes=JSON.parse(txt)?.response?.data?.boxes||[];
+      for(const cap in BASE[m]){
+        const b=boxes.find(x=>x.boxName&&x.boxName.includes(m+" "+cap)&&/unlocked b/i.test(x.boxName)&&x.cashPriceCalculated>0);
+        if(b){S.prices[`${m}|${cap}|cex`]=Math.round(b.cashPriceCalculated);n++}
+      }}catch(e){}
+  }
+  save();renderBB();btn.disabled=false;btn.textContent=n?`↻ CeX updated (${n} prices)`:"↻ CeX blocked — enter manually";
+}
+
+/* ================= NOTIFICATIONS ================= */
+function askNotif(){if("Notification" in window)Notification.requestPermission().then(p=>$("notifBtn").textContent=p==="granted"?"Enabled ✓":"Blocked")}
+function notify(t,b){if("Notification" in window&&Notification.permission==="granted")try{new Notification(t,{body:b})}catch(e){}}
+
+/* ================= RENDER ================= */
+function currentDeals(){
+  return S.listings.map(evalListing).filter(d=>d.profit>=(+S.set.minProfit||0)&&!d.flag)
+    .filter(d=>S.set.filter==="all"||d.model===S.set.filter).sort((a,b)=>b.profit-a.profit);
+}
+function dealCard(d,showProfitAnyway){
+  const p=d.profit;
+  return `<div class="card deal">
+    <div class="row1"><span class="model">${d.model} ${d.cap} <span class="tag">${d.cond}</span> ${d.capGuessed?'<span class="tag flag">cap?</span>':""} ${d.flag?'<span class="tag flag">⚠ check ad</span>':""}</span>
+    <span class="profit ${p>=0?"pos":"neg"}">${p>=0?"+":""}${money(p)}</span></div>
+    <div class="title">${d.title||"(manual entry)"} · <span class="tag">${d.src}</span></div>
+    <div class="path">Buy <b>${money(d.price)}</b> → sell to <b>${d.vendor}</b> for <b>${money(d.offer)}</b> (after ${money(S.set.costs)} costs)</div>
+    <div class="links">${d.url?`<a target=_blank href="${d.url}">View ad ↗</a>`:""}<a target=_blank href="${d.vendorUrl}">Buyback quote ↗</a>
+    <button class="btn sm ghost" onclick="delListing('${d.id}')">✕</button></div></div>`;
+}
+function render(){
+  /* deals */
+  const deals=currentDeals();
+  $("dealsList").innerHTML=deals.length?deals.map(d=>dealCard(d)).join(""):
+   `<div class="empty"><div class="big">🔍</div>No deals above ${money(S.set.minProfit)} right now.<br>Tap <b>Scan</b>, or add FB listings from the Listings tab.</div>`;
+  /* chips */
+  const models=["all",...new Set(S.listings.map(l=>l.model))];
+  $("modelChips").innerHTML=models.map(m=>`<button class="chip ${S.set.filter===m?"on":""}" onclick="S.set.filter='${m}';save();render()">${m==="all"?"All models":m}</button>`).join("");
+  /* all listings */
+  const all=S.listings.map(evalListing).sort((a,b)=>b.profit-a.profit);
+  $("allList").innerHTML=all.length?all.map(d=>dealCard(d)).join(""):'<p class="empty">Nothing yet — scan or add manually.</p>';
+  renderBB();renderSet();
+}
+function renderBB(){
+  let h="<tr><th>Model / cap</th>"+VENDORS.map(v=>`<th><a style="color:var(--acc);text-decoration:none" target=_blank href="${v.url('iPhone')}">${v.name.split(" ")[0]}</a></th>`).join("")+"</tr>";
+  for(const m of MODELS)for(const c in BASE[m]){
+    h+=`<tr><td>${m.replace("iPhone","iP")} ${c}</td>`+VENDORS.map(v=>{
+      const k=`${m}|${c}|${v.id}`;
+      return `<td><input inputmode="numeric" value="${S.prices[k]??""}" onchange="S.prices['${k}']=+this.value||0;save();render()"></td>`}).join("")+"</tr>";
+  }
+  $("bbTable").innerHTML=h;
+}
+function renderSet(){
+  $("minProfit").value=S.set.minProfit;$("costs").value=S.set.costs;
+  $("fbloc").value=S.set.fbloc||"goldcoast";
+  $("fbloc").onchange=e=>{S.set.fbloc=e.target.value.trim().toLowerCase().replace(/\s+/g,"");save();renderSet()};
+  $("workerUrl").value=S.set.workerUrl||"";
+  $("workerUrl").onchange=e=>{S.set.workerUrl=e.target.value.trim();save()};
+  $("mulE").value=S.set.mulE;$("mulG").value=S.set.mulG;$("mulF").value=S.set.mulF;
+  for(const[id,k]of[["minProfit","minProfit"],["costs","costs"],["mulE","mulE"],["mulG","mulG"],["mulF","mulF"]])
+    $(id).onchange=e=>{S.set[k]=+e.target.value;save();render()};
+  $("scanModels").innerHTML=MODELS.map(m=>`<button class="chip ${S.set.scan.includes(m)?"on":""}" onclick="toggleScan('${m}')">${m}</button>`).join("");
+  if("Notification" in window&&Notification.permission==="granted")$("notifBtn").textContent="Enabled ✓";
+  /* FB links */
+  $("fbLinks").innerHTML=S.set.scan.map(m=>`<a target=_blank href="https://www.facebook.com/marketplace/${encodeURIComponent(S.set.fbloc||"goldcoast")}/search?query=${encodeURIComponent(m)}&maxPrice=${maxWorth(m)}">${m} <b>≤${money(maxWorth(m))} ↗</b></a>`).join("");
+  $("ccLinks").innerHTML=S.set.scan.map(m=>`<a target=_blank href="https://www.cashconverters.com.au/shop/search-results?q=${encodeURIComponent(m)}">${m} <b>≤${money(maxWorth(m))} ↗</b></a>`).join("")
+    +`<a target=_blank href="https://www.cashconverters.com.au/shop/phones-cameras-computers/phones/smartphones/apple-iphone"><b>All iPhones ↗</b></a>`;
+}
+/* max price worth paying on FB = best buyback (good) − costs − min profit */
+function maxWorth(m){
+  let best=0;for(const c in BASE[m]){const b=bestBuyback(m,c,"good");if(b&&b.offer>best)best=b.offer}
+  return Math.max(0,Math.round(best-(+S.set.costs||0)-(+S.set.minProfit||0)));
+}
+function toggleScan(m){const i=S.set.scan.indexOf(m);i>=0?S.set.scan.splice(i,1):S.set.scan.push(m);save();renderSet()}
+function delListing(id){S.listings=S.listings.filter(l=>String(l.id)!==String(id));save();render()}
+function addManual(){
+  const price=+$("mPrice").value;if(!price)return alert("Enter the asking price");
+  S.listings.push({id:Date.now(),src:"Manual",title:"",url:$("mUrl").value.trim()||null,price,
+    model:$("mModel").value,cap:$("mCap").value,cond:$("mCond").value,flag:false,ts:Date.now()});
+  save();$("mPrice").value="";$("mUrl").value="";render();
+  const d=currentDeals().find(x=>x.src==="Manual");tab("deals",document.querySelector("nav [data-t=deals]"));
+}
+function banner(id,txt,extra){const b=$(id);b.innerHTML=txt+(extra?"<div style='margin-top:8px'>"+extra+"</div>":"");b.classList.add("show");setTimeout(()=>b.classList.remove("show"),12000)}
+function tab(t,btn){document.querySelectorAll("main>section").forEach(s=>s.hidden=s.id!=="tab-"+t);
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b===btn))}
+
+/* manual form model→cap dependency */
+function fillModelSelects(){
+  $("mModel").innerHTML=MODELS.map(m=>`<option>${m}</option>`).join("");
+  const fill=()=>{$("mCap").innerHTML=Object.keys(BASE[$("mModel").value]).map(c=>`<option>${c}</option>`).join("")};
+  $("mModel").onchange=fill;fill();
+}
+fillModelSelects();render();
+</script>
+</body>
+</html>
