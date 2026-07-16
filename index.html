@@ -221,7 +221,10 @@ function inferModel(t){
   const cap=cm?(cm[0].replace(/\s/g,"").toUpperCase()):null;
   return {model:found,cap:cap&&BASE[found][cap]?cap:Object.keys(BASE[found])[0],capGuessed:!cm};
 }
-const RED=/parts|repair|crack|broken|faulty|smash|icloud|locked|damag|screen only|box only|case|read desc/i;
+/* Title red flags (fast, first pass) */
+const RED=/parts|repair|crack|broken|faulty|smash|shatter|chipped|icloud|\blocked\b|damag|screen only|box only|case only|case for|read desc|not working|spare/i;
+/* Stronger phrases for scanning full descriptions (avoids false positives on "no cracks" etc.) */
+const REDDESC=/cracked|crack(ed|s)?\s*(on|in|across|through|at|near)\b|\ba crack\b|hairline crack|spider\s?web|shatter|smashed|spare parts|for parts|not working|faulty|water damage|liquid damage|boot\s?loop|aftermarket\s*(screen|oled|lcd|display|panel)|screen replacement|needs?\s*repair|no face id|face id\s*(not|isn'?t|doesn'?t)\s*work|burn[-\s]?in|lcd bleed|dead\s*(phone|unit|board|device)|won'?t\s*(turn on|boot|charge|power)|bent frame/i;
 
 /* ================= SCAN (eBay) ================= */
 async function fetchProxy(url){
@@ -235,12 +238,15 @@ function ebayUrl(model){
   return "https://www.ebay.com.au/sch/i.html?_nkw="+encodeURIComponent(model)+
     "&LH_PrefLoc=1&LH_BIN=1&_sop=15&LH_ItemCondition=3000";
 }
-function addScanned(title,url,price){
+function addScanned(title,url,price,itemId,conditionId){
   const inf=inferModel(title);if(!inf||!price)return 0;
   url=url.split("?")[0];
   if(S.listings.some(l=>l.url===url))return 0;
-  S.listings.push({id:Date.now()+Math.random(),src:"eBay",title,url,price,
-    model:inf.model,cap:inf.cap,capGuessed:inf.capGuessed,cond:"good",flag:RED.test(title),ts:Date.now()});
+  const parts=String(conditionId||"")==="7000";           // "For parts or not working"
+  S.listings.push({id:Date.now()+Math.random(),src:"eBay",title,url,price,itemId:itemId||null,
+    model:inf.model,cap:inf.cap,capGuessed:inf.capGuessed,cond:"good",
+    flag:RED.test(title)||parts,flagReason:RED.test(title)?"title":(parts?"listed for parts":""),
+    checked:false,ts:Date.now()});
   return 1;
 }
 /* Official eBay Browse API via the user's Cloudflare Worker (see setup guide) */
@@ -250,8 +256,22 @@ async function scanApi(model){
   const j=await r.json();
   if(j.errors)throw new Error(j.errors[0]?.message||"eBay API error");
   let n=0;
-  for(const it of (j.itemSummaries||[]))n+=addScanned(it.title||"",it.itemWebUrl||"",+(it.price?.value||0));
+  for(const it of (j.itemSummaries||[]))n+=addScanned(it.title||"",it.itemWebUrl||"",+(it.price?.value||0),it.itemId,it.conditionId);
   return n;
+}
+/* Pull the full listing for a profitable candidate and re-check the description +
+   condition notes for damage the title didn't mention (e.g. cracked screen). */
+async function enrichDeal(l){
+  l.checked=true;
+  if(!l.itemId||!S.set.workerUrl)return;
+  try{
+    const r=await fetch(S.set.workerUrl.replace(/\/$/,"")+"/?item="+encodeURIComponent(l.itemId),{signal:AbortSignal.timeout(15000)});
+    if(!r.ok)return;
+    const d=await r.json();
+    const text=[d.conditionDescription,d.shortDescription,d.description]
+      .filter(Boolean).join(" ").replace(/<[^>]+>/g," ");   // strip HTML tags
+    if(REDDESC.test(text)){l.flag=true;l.flagReason="description";}
+  }catch(e){}
 }
 /* Legacy fallback: scrape via public proxies (usually 403-blocked by eBay) */
 async function scanProxy(model){
@@ -277,7 +297,18 @@ async function scanAll(){
   }
   /* prune >7 days old scanned items */
   S.listings=S.listings.filter(l=>l.src!=="eBay"||Date.now()-l.ts<7*864e5);
-  save();render();
+  save();
+  /* Deep-check profitable-looking listings: fetch full description to catch hidden
+     damage (cracked screens etc.) before showing them as deals. */
+  if(apiMode){
+    btn.innerHTML='<span class="spin"></span>Verifying';
+    const toCheck=S.listings.map(evalListing)
+      .filter(d=>d.profit>=(+S.set.minProfit||0)&&!d.flag&&d.itemId&&!d.checked)
+      .slice(0,20);
+    for(const d of toCheck){const l=S.listings.find(x=>x.id===d.id);if(l)await enrichDeal(l);}
+    save();
+  }
+  render();
   btn.disabled=false;btn.textContent="Scan";
   const deals=currentDeals().filter(d=>!S.seen[d.url]);
   deals.forEach(d=>S.seen[d.url]=1);save();
@@ -318,7 +349,7 @@ function currentDeals(){
 function dealCard(d,showProfitAnyway){
   const p=d.profit;
   return `<div class="card deal">
-    <div class="row1"><span class="model">${d.model} ${d.cap} <span class="tag">${d.cond}</span> ${d.capGuessed?'<span class="tag flag">cap?</span>':""} ${d.flag?'<span class="tag flag">⚠ check ad</span>':""}</span>
+    <div class="row1"><span class="model">${d.model} ${d.cap} <span class="tag">${d.cond}</span> ${d.capGuessed?'<span class="tag flag">cap?</span>':""} ${d.flag?`<span class="tag flag">⚠ ${d.flagReason==="description"?"damage in desc":d.flagReason==="listed for parts"?"for parts":d.flagReason==="title"?"check ad":"check ad"}</span>`:""}</span>
     <span class="profit ${p>=0?"pos":"neg"}">${p>=0?"+":""}${money(p)}</span></div>
     <div class="title">${d.title||"(manual entry)"} · <span class="tag">${d.src}</span></div>
     <div class="path">Buy <b>${money(d.price)}</b> → sell to <b>${d.vendor}</b> for <b>${money(d.offer)}</b> (after ${money(S.set.costs)} costs)</div>
